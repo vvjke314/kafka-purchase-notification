@@ -3,6 +3,7 @@ package kafka
 import (
 	"context"
 	"github.com/pkg/errors"
+	"github.com/vvjke314/kafka-purchase-notification/mail"
 	"log"
 	"time"
 
@@ -30,17 +31,31 @@ func (k *Reader) FetchMessage(ctx context.Context, messageCommitChan chan kafkag
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
-		case <-time.After(2):
+		case <-time.After(5 * time.Second):
 			message, err := k.Reader.FetchMessage(ctx)
 			if err != nil {
 				return err
 			}
+			var n int
 			log.Printf("message fetched and sent to a channel: %v \n", string(message.Value))
-			select {
-			case <-ctx.Done():
-				return ctx.Err()
-			case messageCommitChan <- message:
+			for n = 0; n < 3; n++ {
+				err = mail.SendMessageService(string(message.Key), message.Value)
+				if err == nil {
+					break
+				}
+				log.Printf("Can't send message to user, retrying...")
 			}
+			if n == 3 {
+				log.Printf("Too much tries")
+				k.Reader.SetOffset(k.Reader.Offset() - 1)
+			} else {
+				select {
+				case <-ctx.Done():
+					return ctx.Err()
+				case messageCommitChan <- message:
+				}
+			}
+
 		}
 	}
 }

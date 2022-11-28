@@ -33,7 +33,7 @@ func (k *Writer) WriteMessages(ctx context.Context) error {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
-		case <-time.After(1 * time.Second):
+		case <-time.After(4 * time.Second):
 			resp, err := GetMessage()
 			message, err := ParseMessage(resp)
 			val, err := json.Marshal(message)
@@ -65,8 +65,8 @@ func ParseMessage(resp *http.Response) (*models.ResponseMessage, error) {
 }
 
 func GetMessage() (*http.Response, error) {
-	email := ds.Emails[rand.Intn(2)]
-	product := ds.Products[rand.Intn(3)]
+	email := ds.Emails[rand.Intn(3)]
+	product := ds.Products[rand.Intn(5)]
 	client := http.Client{}
 	body := models.RequestMessage{
 		Email:   email,

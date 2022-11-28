@@ -4,11 +4,12 @@ var Emails = []string{
 	"volohajks@inbox.ru",
 	"hopply@mail.ru",
 	"zorkin22@bk.ru",
+	//"seregap@mail.ru",
 }
 
 var Products = []string{
 	"Dildo",
-	"Dokimakura",
+	"Dakimakura",
 	"Alisa Hub",
 	"Zalupa",
 	"Penis",
