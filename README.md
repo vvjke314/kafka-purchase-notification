@@ -3,6 +3,7 @@
 ### Homework in the discipline of Networks and Telecommunications
 ##### Task: Writing a payment confirmation email service using a message broker (Apache Kafka)
 
+
 - [x] Zookeeper and kafka docker container
 - [X] Producer to send notifications
 - [X] Consumer to receive payment messages
