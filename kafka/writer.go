@@ -1,15 +1,12 @@
 package kafka
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	kafkago "github.com/segmentio/kafka-go"
-	"github.com/vvjke314/kafka-purchase-notification/ds"
 	"github.com/vvjke314/kafka-purchase-notification/models"
 	"io/ioutil"
 	"log"
-	"math/rand"
 	"net/http"
 	"time"
 )
@@ -36,8 +33,9 @@ func (k *Writer) WriteMessages(ctx context.Context) error {
 		case <-time.After(4 * time.Second):
 			resp, err := GetMessage()
 			message, err := ParseMessage(resp)
-			val, err := json.Marshal(message)
-			key, err := json.Marshal(message.Email)
+			log.Println(message.Status)
+			val, err := json.Marshal(message.Status)
+			key, err := json.Marshal(message.ID)
 			m := kafkago.Message{
 				Key:   key,
 				Value: val,
@@ -65,21 +63,9 @@ func ParseMessage(resp *http.Response) (*models.ResponseMessage, error) {
 }
 
 func GetMessage() (*http.Response, error) {
-	email := ds.Emails[rand.Intn(3)]
-	product := ds.Products[rand.Intn(5)]
-	client := http.Client{}
-	body := models.RequestMessage{
-		Email:   email,
-		Product: product,
-	}
-	bodyJSON, err := json.Marshal(body)
-	if err != nil {
-		log.Printf("Can't marshal req body")
-	}
-	reqBody := bytes.NewReader(bodyJSON)
-	req, err := http.NewRequest("POST", "http://127.0.0.1:8080/purchase", reqBody)
+	req, err := http.Get("http://0.0.0.0:8080/delivery")
 	if err != nil {
 		log.Printf("Can't send request")
 	}
-	return client.Do(req)
+	return req, err
 }

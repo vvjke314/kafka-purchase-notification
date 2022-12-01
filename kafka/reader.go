@@ -5,6 +5,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/vvjke314/kafka-purchase-notification/mail"
 	"log"
+	"strconv"
 	"time"
 
 	kafkago "github.com/segmentio/kafka-go"
@@ -37,9 +38,13 @@ func (k *Reader) FetchMessage(ctx context.Context, messageCommitChan chan kafkag
 				return err
 			}
 			var n int
+			VkID, err := strconv.Atoi(string(message.Key))
+			if err != nil {
+				return err
+			}
 			log.Printf("message fetched and sent to a channel: %v \n", string(message.Value))
 			for n = 0; n < 3; n++ {
-				err = mail.SendMessageService(string(message.Key), message.Value)
+				err = mail.SendMessageService(VkID, string(message.Value))
 				if err == nil {
 					break
 				}

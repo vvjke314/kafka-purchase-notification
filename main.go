@@ -3,10 +3,9 @@ package main
 import (
 	"context"
 	kafkago "github.com/segmentio/kafka-go"
-	"log"
-
 	"github.com/vvjke314/kafka-purchase-notification/kafka"
 	"golang.org/x/sync/errgroup"
+	"log"
 )
 
 func main() {
