@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func handler(c *gin.Context) {
+func Handler(c *gin.Context) {
 	req := &models.RequestMessage{}
 	err := c.BindJSON(req)
 	message := &models.ResponseMessage{
@@ -24,6 +24,6 @@ func handler(c *gin.Context) {
 
 func main() {
 	r := gin.Default()
-	r.POST("/purchase", handler)
+	r.POST("/purchase", Handler)
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
