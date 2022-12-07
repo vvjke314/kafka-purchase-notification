@@ -46,7 +46,8 @@ func (k *Reader) FetchMessage(ctx context.Context, messageCommitChan chan kafkag
 			var n int
 			log.Printf("message fetched and sent to a channel: %v \n", string(message.Value))
 			for n = 0; n < 3; n++ {
-				err = mail.SendMessageService(string(message.Key), message.Value)
+				err = mail.SendMessageService(string(message.Key), string(message.Value))
+				log.Println(err)
 				if err == nil {
 					break
 				}

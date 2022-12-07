@@ -12,9 +12,10 @@ func Handler(c *gin.Context) {
 	req := &models.RequestMessage{}
 	err := c.BindJSON(req)
 	message := &models.ResponseMessage{
-		Email:   req.Email,
-		Product: req.Product,
-		Time:    time.Now().Format(time.RFC822),
+		Id:     req.Id,
+		Status: req.Status,
+		Plate:  req.Plate,
+		Time:   time.Now().Format(time.RFC822),
 	}
 	if err != nil {
 		log.Printf("Error occured in binding request body into message")
