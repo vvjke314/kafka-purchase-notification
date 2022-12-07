@@ -48,13 +48,13 @@ func (a *App) Run(channel chan models.ResponseMessage) error {
 	}
 	var choice []string
 	if consumers[plate].IsEnter {
-		choice = append(choice, "Выехал")
+		choice = append(choice, "Вы выехали с парковки!")
 		consumers[plate] = ds.User{
 			consumers[plate].Id,
 			!consumers[plate].IsEnter,
 		}
 	} else {
-		choice = append(choice, "Въехал")
+		choice = append(choice, "Вы въехали на парковку!")
 		consumers[plate] = ds.User{
 			consumers[plate].Id,
 			!consumers[plate].IsEnter,

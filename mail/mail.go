@@ -18,7 +18,10 @@ func SendMessageService(VkID string, messageText string) error {
 	vk := api.NewVK("vk1.a.xor1NCLq_CEWCtDdFOTsqYpSHtXWK9DCDqV2YbF8to4ZMw0bNgXyziEiOPz10AV6VmGNyIdKfP3b-PXcaJ-dfKTTwAhXlDLHl0mNffeXW3cFudt_eOHLfD9t6iKa3jV1io8018u4anxgd8SPFIld4qAyowXcoDO7jjOTML9elPGPosr7u092BdzE1wOTS-8w")
 	b := params.NewMessagesSendBuilder()
 	b.RandomID(0)
-	b.Message(messageText[1 : len(messageText)-1])
+	message := strings.Split(messageText, ":")
+	status := strings.Split(message[2], ",")
+	car := strings.Split(message[3], ",")
+	b.Message(status[0] + "\nНомер вашей машины: " + car[0] + "\nВремя: " + message[4] + ":" + message[5][:len(message[5])-1])
 	b.PeerID(vkId)
 	_, err = vk.MessagesSend(b.Params)
 	if err != nil {
