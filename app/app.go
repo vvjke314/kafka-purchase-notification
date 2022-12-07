@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/gen2brain/dlgs"
+	"github.com/vvjke314/kafka-purchase-notification/ds"
 	"github.com/vvjke314/kafka-purchase-notification/models"
 	"io"
 	"log"
@@ -22,30 +23,51 @@ func NewApplication(ctx context.Context) *App {
 	}
 }
 
+var consumers = map[string]ds.User{
+	"G321PK": {
+		"185404885",
+		false,
+	},
+	"G444PP": {
+		"185404885",
+		false,
+	},
+}
+
 func (a *App) Run(channel chan models.ResponseMessage) error {
-	consumers := map[string]string{
-		"G321PK": "185404885",
-		"G444PP": "185404885",
-	}
 	var plates []string
 	for pl := range consumers {
 		plates = append(plates, pl)
 	}
-	plate, _, err := dlgs.List("List", "Выберете номер машины:", plates)
+	plate, st, err := dlgs.List("List", "Выберете номер машины:", plates)
 	if err != nil {
 		panic(err)
 	}
-	if plate == "" || err != nil {
+	if plate == "" || st == false {
 		return errors.New("Canceled")
 	}
-	state, _, err := dlgs.List("List", "Select item from list:", []string{"Въехал", "Выехал"})
+	var choice []string
+	if consumers[plate].IsEnter {
+		choice = append(choice, "Выехал")
+		consumers[plate] = ds.User{
+			consumers[plate].Id,
+			!consumers[plate].IsEnter,
+		}
+	} else {
+		choice = append(choice, "Въехал")
+		consumers[plate] = ds.User{
+			consumers[plate].Id,
+			!consumers[plate].IsEnter,
+		}
+	}
+	state, st, err := dlgs.List("List", "Select item from list:", choice)
 	if err != nil {
 		panic(err)
 	}
-	if state == "" || err != nil {
+	if state == "" || st == false {
 		return errors.New("Canceled")
 	}
-	resp, err := GetMessage(plate, consumers[plate], state)
+	resp, err := GetMessage(plate, consumers[plate].Id, state)
 	message, err := ParseMessage(resp)
 	channel <- *message
 	if err != nil {
