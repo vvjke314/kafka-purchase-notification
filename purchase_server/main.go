@@ -5,16 +5,16 @@ import (
 	"github.com/vvjke314/kafka-purchase-notification/models"
 	"log"
 	"net/http"
-	"time"
 )
 
 func Handler(c *gin.Context) {
 	req := &models.RequestMessage{}
 	err := c.BindJSON(req)
 	message := &models.ResponseMessage{
-		Email:   req.Email,
-		Product: req.Product,
-		Time:    time.Now().Format(time.RFC822),
+		Id:   req.Id,
+		Name: req.Name,
+		Time: req.Time,
+		Note: req.Note,
 	}
 	if err != nil {
 		log.Printf("Error occured in binding request body into message")

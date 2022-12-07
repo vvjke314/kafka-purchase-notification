@@ -1,12 +1,15 @@
 package models
 
 type RequestMessage struct {
-	Email   string `json:"email"`
-	Product string `json:"product"`
+	Id   string `json:"id"`
+	Name string `json:"name"`
+	Time string `json:"time"`
+	Note string `json:"note"`
 }
 
 type ResponseMessage struct {
-	Email   string `json:"email"`
-	Product string `json:"product"`
-	Time    string `json:"time"`
+	Id   string `json:"id"`
+	Name string `json:"name"`
+	Time string `json:"time"`
+	Note string `json:"note"`
 }

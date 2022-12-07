@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/gen2brain/dlgs"
-	"github.com/vvjke314/kafka-purchase-notification/mail"
+	"github.com/vvjke314/kafka-purchase-notification/telegram"
 	"log"
 	"os"
 	"strconv"
@@ -46,7 +46,7 @@ func (k *Reader) FetchMessage(ctx context.Context, messageCommitChan chan kafkag
 			var n int
 			log.Printf("message fetched and sent to a channel: %v \n", string(message.Value))
 			for n = 0; n < 3; n++ {
-				err = mail.SendMessageService(string(message.Key), message.Value)
+				err = telegram.SendMessageService(string(message.Key), string(message.Value))
 				if err == nil {
 					break
 				}
@@ -58,7 +58,7 @@ func (k *Reader) FetchMessage(ctx context.Context, messageCommitChan chan kafkag
 				k.Reader.SetOffset(k.Reader.Offset() - 1)
 				log.Println(k.Reader.Offset())
 				log.Printf("Too much tries")
-				info := fmt.Sprintf("Can't send message:{%s} to user", string(message.Value))
+				info := fmt.Sprintf("Не получилось отправить напоминание:{%s} пользователю", string(message.Value))
 				_, err := dlgs.Info("Info", info)
 				if err != nil {
 					panic(err)

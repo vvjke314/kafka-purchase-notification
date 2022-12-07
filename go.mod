@@ -3,20 +3,20 @@ module github.com/vvjke314/kafka-purchase-notification
 go 1.18
 
 require (
-	github.com/pkg/errors v0.9.1
+	github.com/gen2brain/dlgs v0.0.0-20220603100644-40c77870fa8d
+	github.com/gin-gonic/gin v1.8.1
+	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
 	github.com/segmentio/kafka-go v0.4.38
+	github.com/sirupsen/logrus v1.8.1
 	golang.org/x/sync v0.1.0
 )
 
 require (
-	github.com/gen2brain/dlgs v0.0.0-20220603100644-40c77870fa8d // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
-	github.com/gin-gonic/gin v1.8.1 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-playground/validator/v10 v10.10.0 // indirect
 	github.com/goccy/go-json v0.9.7 // indirect
-	github.com/google/uuid v1.3.0 // indirect
 	github.com/gopherjs/gopherjs v1.17.2 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/compress v1.15.9 // indirect

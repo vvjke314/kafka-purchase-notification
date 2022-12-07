@@ -22,19 +22,41 @@ func NewApplication(ctx context.Context) *App {
 	}
 }
 
+var Users = map[string]string{
+	"Сергей": "719205059",
+}
+
 func (a *App) Run(channel chan models.ResponseMessage) error {
-	email, st, err := dlgs.Entry("Entry", "Enter your email:", "volohajks@inbox.ru")
+	var names []string
+	for name := range Users {
+		names = append(names, name)
+	}
+	user, st, err := dlgs.List("Entry", "Выберите пользователя:", names)
 	if err != nil {
 		panic(err)
 	}
-	if email == "" || st == false {
+	if user == "" || st == false {
 		return errors.New("Canceled")
 	}
-	product, st, err := dlgs.Entry("Entry", "Enter product name:", "")
-	resp, err := GetMessage(email, product)
+	note, st, err := dlgs.Entry("Entry", "Введите напоминание:", "")
+	if err != nil {
+		panic(err)
+	}
+	if note == "" || st == false {
+		return errors.New("Canceled")
+	}
+	time, st, err := dlgs.Entry("Entry", "Введите время напоминания:", "")
+	if err != nil {
+		panic(err)
+	}
+	if note == "" || st == false {
+		return errors.New("Canceled")
+	}
+
+	resp, err := GetMessage(user, Users[user], time, note)
 	message, err := ParseMessage(resp)
 	channel <- *message
-	if product == "" || email == "" || st == false {
+	if st == false {
 		return errors.New("Canceled")
 	} else {
 		a.Run(channel)
@@ -56,11 +78,13 @@ func ParseMessage(resp *http.Response) (*models.ResponseMessage, error) {
 	return message, err
 }
 
-func GetMessage(email, product string) (*http.Response, error) {
+func GetMessage(name, id, time, note string) (*http.Response, error) {
 	client := http.Client{}
 	body := models.RequestMessage{
-		Email:   email,
-		Product: product,
+		Id:   id,
+		Name: name,
+		Time: time,
+		Note: note,
 	}
 	bodyJSON, err := json.Marshal(body)
 	if err != nil {

@@ -30,8 +30,9 @@ func (k *Writer) WriteMessages(ctx context.Context, responseChannel chan models.
 		case message := <-responseChannel:
 			//resp, err := GetMessage()
 			//message, err := ParseMessage(resp)
+			log.Printf("я тут")
 			val, err := json.Marshal(message)
-			key, err := json.Marshal(message.Email)
+			key, err := json.Marshal(message.Id)
 			m := kafkago.Message{
 				Key:   key,
 				Value: val,
