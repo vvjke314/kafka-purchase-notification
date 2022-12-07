@@ -2,9 +2,13 @@ package kafka
 
 import (
 	"context"
-	"github.com/pkg/errors"
-	"github.com/vvjke314/kafka-purchase-notification/mail"
+	"encoding/json"
+	"fmt"
+	"github.com/gen2brain/dlgs"
+	"github.com/vvjke314/kafka-purchase-notification/models"
+	"github.com/vvjke314/kafka-purchase-notification/vk"
 	"log"
+	"os"
 	"strconv"
 	"time"
 
@@ -17,9 +21,9 @@ type Reader struct {
 
 func NewKafkaReader() *Reader {
 	reader := kafkago.NewReader(kafkago.ReaderConfig{
-		Brokers: []string{"localhost:29092"}, //надо занести в файлы конфигурации
-		Topic:   "test-topic",
-		GroupID: "group",
+		Brokers:   []string{"localhost:29092"}, //надо занести в файлы конфигурации
+		Topic:     "test-topic",
+		Partition: 0,
 	})
 
 	return &Reader{
@@ -32,50 +36,48 @@ func (k *Reader) FetchMessage(ctx context.Context, messageCommitChan chan kafkag
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
-		case <-time.After(5 * time.Second):
+		case <-time.After(1 * time.Second):
+			off, _ := os.ReadFile("offset.txt")
+			ioff, _ := strconv.Atoi(string(off))
+			k.Reader.SetOffset(int64(ioff))
 			message, err := k.Reader.FetchMessage(ctx)
 			if err != nil {
 				return err
 			}
+			log.Println(string(message.Value))
 			var n int
 			VkID, err := strconv.Atoi(string(message.Key))
 			if err != nil {
 				return err
 			}
-			log.Printf("message fetched and sent to a channel: %v \n", string(message.Value))
+			resp := models.ResponseMessage{}
+			json.Unmarshal(message.Value, &resp)
+			log.Printf("message fetched and sent to a channel: %v \n", resp.Status)
 			for n = 0; n < 3; n++ {
-				err = mail.SendMessageService(VkID, string(message.Value))
+				err = vk.SendMessageService(VkID, resp.Status)
 				if err == nil {
 					break
 				}
 				log.Printf("Can't send message to user, retrying...")
+				time.Sleep(1 * time.Second)
 			}
+			f, _ := os.Create("offset.txt")
+			defer f.Close()
 			if n == 3 {
-				log.Printf("Too much tries")
 				k.Reader.SetOffset(k.Reader.Offset() - 1)
-			} else {
-				select {
-				case <-ctx.Done():
-					return ctx.Err()
-				case messageCommitChan <- message:
+				log.Println(k.Reader.Offset())
+				log.Printf("Too much tries")
+				info := fmt.Sprintf("Can't send message to user:%s. Call the number:%s", message.Key, resp.Number)
+				_, err := dlgs.Info("Info", info)
+				if err != nil {
+					log.Println(err)
 				}
+			} else {
+				k.Reader.SetOffset(k.Reader.Offset())
+				log.Println(k.Reader.Offset())
 			}
-
-		}
-	}
-}
-
-func (k *Reader) CommitMessages(ctx context.Context, messageCommitChan chan kafkago.Message) error {
-	for {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		case msg := <-messageCommitChan:
-			err := k.Reader.CommitMessages(ctx, msg)
-			if err != nil {
-				return errors.Wrap(err, "Reader.CommitMessages")
-			}
-			log.Printf("committed an msg: %v \n", string(msg.Value))
+			offsetStr := fmt.Sprintf("%v", k.Reader.Offset())
+			f.WriteString(offsetStr)
 		}
 	}
 }
