@@ -45,7 +45,7 @@ func SendMessageService(mailAddress string, messageText []byte) error {
 	if err != nil {
 		return err
 	}
-
+	log.Printf("Message sent to email")
 	defer w.Close()
 
 	defer cl.Quit()

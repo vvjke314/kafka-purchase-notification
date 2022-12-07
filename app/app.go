@@ -6,11 +6,9 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/gen2brain/dlgs"
-	"github.com/vvjke314/kafka-purchase-notification/ds"
 	"github.com/vvjke314/kafka-purchase-notification/models"
-	"io/ioutil"
+	"io"
 	"log"
-	"math/rand"
 	"net/http"
 )
 
@@ -25,14 +23,18 @@ func NewApplication(ctx context.Context) *App {
 }
 
 func (a *App) Run(channel chan models.ResponseMessage) error {
-	response, bool, err := dlgs.Entry("Entry", "Enter your email:", "")
+	email, st, err := dlgs.Entry("Entry", "Enter your email:", "volohajks@inbox.ru")
 	if err != nil {
 		panic(err)
 	}
-	resp, err := GetMessage(response)
+	if email == "" || st == false {
+		return errors.New("Canceled")
+	}
+	product, st, err := dlgs.Entry("Entry", "Enter product name:", "")
+	resp, err := GetMessage(email, product)
 	message, err := ParseMessage(resp)
 	channel <- *message
-	if response == "" || bool == false {
+	if product == "" || email == "" || st == false {
 		return errors.New("Canceled")
 	} else {
 		a.Run(channel)
@@ -41,7 +43,7 @@ func (a *App) Run(channel chan models.ResponseMessage) error {
 }
 
 func ParseMessage(resp *http.Response) (*models.ResponseMessage, error) {
-	rawMessage, err := ioutil.ReadAll(resp.Body)
+	rawMessage, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Printf("Can't read response body")
 	}
@@ -54,8 +56,7 @@ func ParseMessage(resp *http.Response) (*models.ResponseMessage, error) {
 	return message, err
 }
 
-func GetMessage(email string) (*http.Response, error) {
-	product := ds.Products[rand.Intn(5)]
+func GetMessage(email, product string) (*http.Response, error) {
 	client := http.Client{}
 	body := models.RequestMessage{
 		Email:   email,

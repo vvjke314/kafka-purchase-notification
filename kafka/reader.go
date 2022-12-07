@@ -3,6 +3,7 @@ package kafka
 import (
 	"context"
 	"fmt"
+	"github.com/gen2brain/dlgs"
 	"github.com/vvjke314/kafka-purchase-notification/mail"
 	"log"
 	"os"
@@ -53,11 +54,15 @@ func (k *Reader) FetchMessage(ctx context.Context, messageCommitChan chan kafkag
 				time.Sleep(1 * time.Second)
 			}
 			f, _ := os.Create("offset.txt")
-			defer f.Close()
 			if n == 3 {
 				k.Reader.SetOffset(k.Reader.Offset() - 1)
 				log.Println(k.Reader.Offset())
 				log.Printf("Too much tries")
+				info := fmt.Sprintf("Can't send message:{%s} to user", string(message.Value))
+				_, err := dlgs.Info("Info", info)
+				if err != nil {
+					panic(err)
+				}
 			} else {
 				k.Reader.SetOffset(k.Reader.Offset())
 				log.Println(k.Reader.Offset())

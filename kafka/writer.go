@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	kafkago "github.com/segmentio/kafka-go"
 	"github.com/vvjke314/kafka-purchase-notification/models"
+	"log"
 )
 
 type Writer struct {
@@ -39,6 +40,7 @@ func (k *Writer) WriteMessages(ctx context.Context, responseChannel chan models.
 			if err != nil {
 				return err
 			}
+			log.Printf("Message %s writed into queue", m.Value)
 		}
 	}
 }
