@@ -19,10 +19,9 @@ type Reader struct {
 
 func NewKafkaReader() *Reader {
 	reader := kafkago.NewReader(kafkago.ReaderConfig{
-		Brokers:   []string{"localhost:29092"}, //надо занести в файлы конфигурации
+		Brokers:   []string{"localhost:29092"},
 		Topic:     "test-topic",
 		Partition: 0,
-		//GroupID: "group",
 	})
 
 	return &Reader{
@@ -30,7 +29,7 @@ func NewKafkaReader() *Reader {
 	}
 }
 
-func (k *Reader) FetchMessage(ctx context.Context, messageCommitChan chan kafkago.Message) error {
+func (k *Reader) FetchMessage(ctx context.Context) error {
 	for {
 		select {
 		case <-ctx.Done():
@@ -44,13 +43,13 @@ func (k *Reader) FetchMessage(ctx context.Context, messageCommitChan chan kafkag
 				return err
 			}
 			var n int
-			log.Printf("message fetched and sent to a channel: %v \n", string(message.Value))
+			log.Printf("Напоминание получено и отправлено в канал: %v \n", string(message.Value))
 			for n = 0; n < 3; n++ {
 				err = telegram.SendMessageService(string(message.Key), string(message.Value))
 				if err == nil {
 					break
 				}
-				log.Printf("Can't send message to user, retrying...")
+				log.Printf("Не удалось отправить напоминание пользователю, пытаюсь отправить снова...")
 				time.Sleep(1 * time.Second)
 			}
 			f, _ := os.Create("offset.txt")
@@ -65,7 +64,7 @@ func (k *Reader) FetchMessage(ctx context.Context, messageCommitChan chan kafkag
 				}
 			} else {
 				k.Reader.SetOffset(k.Reader.Offset())
-				log.Println(k.Reader.Offset())
+				log.Println("Offset: ", k.Reader.Offset())
 			}
 			offsetStr := fmt.Sprintf("%v", k.Reader.Offset())
 			f.WriteString(offsetStr)
@@ -73,18 +72,3 @@ func (k *Reader) FetchMessage(ctx context.Context, messageCommitChan chan kafkag
 		}
 	}
 }
-
-//func (k *Reader) CommitMessages(ctx context.Context, messageCommitChan chan kafkago.Message) error {
-//	for {
-//		select {
-//		case <-ctx.Done():
-//			return ctx.Err()
-//		case msg := <-messageCommitChan:
-//			err := k.Reader.CommitMessages(ctx, msg)
-//			if err != nil {
-//				return errors.Wrap(err, "Reader.CommitMessages")
-//			}
-//			log.Printf("committed an msg: %v \n", string(msg.Value))
-//		}
-//	}
-//}

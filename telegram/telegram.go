@@ -3,6 +3,7 @@ package telegram
 import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	log "github.com/sirupsen/logrus"
+	log2 "log"
 	"strconv"
 	"strings"
 )
@@ -44,6 +45,6 @@ func SendMessageService(TgID string, messageText string) error {
 		log.Error(err)
 		return err
 	}
-
+	log2.Println("Напоминание отправлено в телеграмм")
 	return nil
 }

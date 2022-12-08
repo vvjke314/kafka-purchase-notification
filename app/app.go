@@ -24,6 +24,7 @@ func NewApplication(ctx context.Context) *App {
 
 var Users = map[string]string{
 	"Сергей": "719205059",
+	"Лев":    "484964911",
 }
 
 func (a *App) Run(channel chan models.ResponseMessage) error {
@@ -49,7 +50,7 @@ func (a *App) Run(channel chan models.ResponseMessage) error {
 	if err != nil {
 		panic(err)
 	}
-	if note == "" || st == false {
+	if time == "" || st == false {
 		return errors.New("Canceled")
 	}
 
@@ -91,7 +92,7 @@ func GetMessage(name, id, time, note string) (*http.Response, error) {
 		log.Printf("Can't marshal req body")
 	}
 	reqBody := bytes.NewReader(bodyJSON)
-	req, err := http.NewRequest("POST", "http://127.0.0.1:8080/purchase", reqBody)
+	req, err := http.NewRequest("POST", "http://127.0.0.1:8080/notification", reqBody)
 	if err != nil {
 		log.Printf("Can't send request")
 	}
