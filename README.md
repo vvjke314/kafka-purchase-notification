@@ -12,8 +12,7 @@
 - [X] GUI (Read more [here](https://pkg.go.dev/github.com/gen2brain/dlgs))
 - [X] 
 
+
 To raise Zookeeper and Kafka servers. Kafka port is 29092
 
     docker compose up -d
-
-
