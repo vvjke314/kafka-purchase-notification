@@ -10,7 +10,6 @@
 - [X] Sending email via SMTP (Read more [here](https://pkg.go.dev/net/smtp))
 - [X] Purchase service simulating
 - [X] GUI (Read more [here](https://pkg.go.dev/github.com/gen2brain/dlgs))
-- [X] 
 
 
 To raise Zookeeper and Kafka servers. Kafka port is 29092
